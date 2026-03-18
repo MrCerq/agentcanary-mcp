@@ -116,11 +116,16 @@ server.tool(
 // --- Tool: get_indicators (builder+) ---
 server.tool(
   "get_indicators",
-  "Get latest market indicators: VIX, Fear & Greed, BTC funding rates, ETF flows, stablecoin yields, oil futures, and 50+ more. Requires Builder tier or above.",
+  "Get market indicators. 36 proprietary indicators including Bull Market Support Band, Pi Cycle, Wyckoff Structure, Stablecoin Composite, Composite Risk Score, and more. Pass a name for a single indicator, or list all. Requires Builder tier or above.",
   {
-    category: z.string().optional().describe("Filter by category: crypto, macro, sentiment, options, defi"),
+    name: z.string().optional().describe("Specific indicator name, e.g. 'bull-market-support-band', 'btc-pi-cycle', 'wyckoff-structure'"),
+    category: z.string().optional().describe("Filter by category: crypto, macro, sentiment, technical, liquidity"),
   },
-  async ({ category }) => {
+  async ({ name, category }) => {
+    if (name) {
+      const data = await acFetch(`indicators/${name}`);
+      return { content: [{ type: "text", text: truncate(data) }] };
+    }
     const data = await acFetch("indicators");
     let indicators = data.indicators || [];
     if (category) {
