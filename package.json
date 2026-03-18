@@ -1,0 +1,24 @@
+{
+  "name": "agentcanary-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for AgentCanary market intelligence — briefs, indicators, regime, narratives, predictions, scoring",
+  "main": "index.js",
+  "type": "module",
+  "bin": {
+    "agentcanary-mcp": "./index.js"
+  },
+  "keywords": ["mcp", "market-intelligence", "agentcanary", "trading", "macro", "crypto"],
+  "author": "AgentCanary",
+  "license": "MIT",
+  "homepage": "https://agentcanary.ai",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MrCerq/agentcanary-mcp"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
