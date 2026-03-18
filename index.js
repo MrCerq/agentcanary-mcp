@@ -263,6 +263,90 @@ server.tool(
   }
 );
 
+// --- Tool: get_signals (signal+) ---
+server.tool(
+  "get_signals",
+  "Get trading signals — whale alerts, fear & greed, funding rates, BTC ETF flows, VIX, credit stress, sector rotation, insider activity, DXY, oil, yield curve, and more. Pass a type for specific signal.",
+  {
+    type: z.string().optional().describe("Signal type: whale-alerts, fear-greed, funding-rates, btc-etf-flows, vix, credit-stress, sector-rotation, insider-activity, correlations, dxy, oil, yield-curve, market-structure, stablecoin-dominance, whale-positions, cftc-cot, bofa-fms, dispersion, geopolitical-risk, decision-engine"),
+  },
+  async ({ type }) => {
+    const endpoint = type ? `signals/${type}` : "signals/decision-engine";
+    const data = await acFetch(endpoint);
+    return { content: [{ type: "text", text: truncate(data) }] };
+  }
+);
+
+// --- Tool: get_defi (signal+) ---
+server.tool(
+  "get_defi",
+  "Get DeFi intelligence — yields, PE ratios, stablecoin flows, chain activity, token unlocks, perp funding. Pass a category for specific data.",
+  {
+    category: z.string().optional().describe("Category: yields, pe-ratios, stablecoins, chains, unlocks, perps, signals, intelligence"),
+  },
+  async ({ category }) => {
+    const endpoint = category ? `defi/${category}` : "defi/intelligence";
+    const data = await acFetch(endpoint);
+    return { content: [{ type: "text", text: truncate(data) }] };
+  }
+);
+
+// --- Tool: get_btc_options (signal+) ---
+server.tool(
+  "get_btc_options",
+  "Get BTC options data — max pain, volatility skew, put/call ratios. Key for understanding institutional positioning.",
+  {
+    view: z.string().optional().describe("View: maxpain, skew. Omit for overview."),
+  },
+  async ({ view }) => {
+    const endpoint = view ? `btc-options/${view}` : "btc-options";
+    const data = await acFetch(endpoint);
+    return { content: [{ type: "text", text: truncate(data) }] };
+  }
+);
+
+// --- Tool: get_central_banks (signal+) ---
+server.tool(
+  "get_central_banks",
+  "Get central bank data — balance sheets, gold reserves, BTC reserves, stablecoin exposure, TIC flows. Tracks institutional macro positioning.",
+  {
+    view: z.string().optional().describe("View: balance-sheets, gold, btc, stablecoins, reserves, tic. Omit for overview."),
+  },
+  async ({ view }) => {
+    const endpoint = view ? `central-banks/${view}` : "central-banks";
+    const data = await acFetch(endpoint);
+    return { content: [{ type: "text", text: truncate(data) }] };
+  }
+);
+
+// --- Tool: get_expectations (signal+) ---
+server.tool(
+  "get_expectations",
+  "Get market expectations — crowded trades, early-stage narratives, rotation signals. Identifies where consensus is building or breaking.",
+  {
+    view: z.string().optional().describe("View: crowded, early, rotation. Omit for overview."),
+  },
+  async ({ view }) => {
+    const endpoint = view ? `expectations/${view}` : "expectations";
+    const data = await acFetch(endpoint);
+    return { content: [{ type: "text", text: truncate(data) }] };
+  }
+);
+
+// --- Tool: get_macro (builder+) ---
+server.tool(
+  "get_macro",
+  "Get macro data — snapshot (30+ FRED series), business cycle position, global liquidity, US M2, supply chain stress, calendar of high-impact events.",
+  {
+    view: z.string().optional().describe("View: snapshot, business-cycle, global-liquidity, us-m2, supply-chain, calendar-high-impact, risk-score, signals. Omit for regime."),
+  },
+  async ({ view }) => {
+    const endpoint = view ? `macro/${view}` : "macro/regime";
+    const data = await acFetch(endpoint);
+    return { content: [{ type: "text", text: truncate(data) }] };
+  }
+);
+
 // ─── Start ───────────────────────────────────────────────────────
 
 await detectTier();
