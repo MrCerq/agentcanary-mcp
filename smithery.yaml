@@ -1,0 +1,22 @@
+# Smithery configuration — https://smithery.ai/docs/config
+# Tells Smithery how to launch agentcanary-mcp via stdio with the user's API key.
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema for the config that Smithery passes to the server at launch.
+    type: object
+    required:
+      - acApiKey
+    properties:
+      acApiKey:
+        type: string
+        description: AgentCanary API key. Get one at https://app.agentcanary.ai or POST https://api.agentcanary.ai/api/keys/create with a wallet address.
+  commandFunction:
+    # Returns the CLI command Smithery uses to spawn the MCP server.
+    |-
+    (config) => ({
+      command: 'npx',
+      args: ['-y', 'agentcanary-mcp'],
+      env: { AC_API_KEY: config.acApiKey }
+    })
