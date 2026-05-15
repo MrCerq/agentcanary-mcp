@@ -81,7 +81,7 @@ async function detectTier() {
 
 const server = new McpServer({
   name: "agentcanary",
-  version: "1.1.2",
+  version: "1.2.0",
 });
 
 // --- Tool: get_briefs (all tiers) ---
@@ -294,12 +294,34 @@ server.tool(
 // --- Tool: get_btc_options (signal+) ---
 server.tool(
   "get_btc_options",
-  "Get BTC options data — max pain, volatility skew, put/call ratios. Key for understanding institutional positioning.",
+  "Get BTC options data — pass view= for maxpain (max pain price) or skew (volatility skew). Omit for overview (includes max pain + skew + put/call ratios). Key for understanding institutional positioning.",
   {
     view: z.string().optional().describe("View: maxpain, skew. Omit for overview."),
   },
   async ({ view }) => {
     const endpoint = view ? `btc-options/${view}` : "btc-options";
+    const data = await acFetch(endpoint);
+    return { content: [{ type: "text", text: truncate(data) }] };
+  }
+);
+
+// --- Tool: get_market_structure (signal+) ---
+server.tool(
+  "get_market_structure",
+  "Get market structure & exchange data — pass view= for one of: orderbook (depth across exchanges), liquidation-heatmap (BTC leverage liquidation map), liquidation-ranges, exchange-assets (token listings by venue), exchange-volumes (trading volumes by exchange), coinbase (Coinbase-specific metrics). Omit for orderbook (default). Covers the leverage/depth/venue data that complements directional signals from get_signals.",
+  {
+    view: z.string().optional().describe("View: orderbook, liquidation-heatmap, liquidation-ranges, exchange-assets, exchange-volumes, coinbase. Omit for orderbook."),
+  },
+  async ({ view }) => {
+    const map = {
+      orderbook: "orderbook/depth",
+      "liquidation-heatmap": "btc-liquidation-heatmap",
+      "liquidation-ranges": "liquidation-ranges",
+      "exchange-assets": "exchange-assets",
+      "exchange-volumes": "exchange-volumes",
+      coinbase: "coinbase",
+    };
+    const endpoint = map[view] || map.orderbook;
     const data = await acFetch(endpoint);
     return { content: [{ type: "text", text: truncate(data) }] };
   }
