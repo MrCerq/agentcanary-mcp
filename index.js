@@ -81,7 +81,7 @@ async function detectTier() {
 
 const server = new McpServer({
   name: "agentcanary",
-  version: "1.1.1",
+  version: "1.1.2",
 });
 
 // --- Tool: get_briefs (all tiers) ---

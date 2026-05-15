@@ -1,0 +1,31 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.MrCerq/agentcanary",
+  "title": "AgentCanary",
+  "description": "Cross-asset market intelligence: macro regime, signals, briefs, narratives, options, DeFi.",
+  "websiteUrl": "https://agentcanary.ai",
+  "repository": {
+    "url": "https://github.com/MrCerq/agentcanary-mcp",
+    "source": "github"
+  },
+  "version": "1.1.2",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "agentcanary-mcp",
+      "version": "1.1.2",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "AC_API_KEY",
+          "description": "AgentCanary API key. Get one at https://app.agentcanary.ai or POST https://api.agentcanary.ai/api/keys/create with a wallet address.",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}
