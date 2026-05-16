@@ -369,6 +369,37 @@ server.tool(
   }
 );
 
+// --- Tool: get_open_interest (builder+) ---
+// Live derivatives positioning across 43 tracked perps × 21 exchanges.
+// Sourced from coinglass-v2; refreshes ~hourly upstream. Same atom that
+// powers the OPEN INTEREST section of the pulse brief.
+server.tool(
+  "get_open_interest",
+  "Get cross-exchange open-interest snapshot for crypto perps. Aggregate OI across 43 symbols + top-N by USD size + top-N by absolute 4h Δ% (intraday OI shifters). Useful for agents detecting positioning unwinds, new builds, leveraged crowding. Builder tier or above.",
+  {
+    view: z.string().optional().describe("View: 'top' (top symbols by OI USD), 'shifters' (top intraday OI movers by 4h Δ%). Omit for full snapshot (aggregate + top + shifters + envelope)."),
+  },
+  async ({ view }) => {
+    const endpoint = view ? `derivatives/oi/${view}` : "derivatives/oi";
+    const data = await acFetch(endpoint);
+    return { content: [{ type: "text", text: truncate(data) }] };
+  }
+);
+
+// --- Tool: get_liquidations (builder+) ---
+// 24h aggregate + latest 4h breakdown with long/short USD split, per-side
+// event counts, dominant-direction label. Same atom that powers the
+// Liquidations line of the pulse brief.
+server.tool(
+  "get_liquidations",
+  "Get crypto perp liquidations. 24h total + latest-4h breakdown with long/short USD split, per-side event counts, long%/short%, and dominant-direction label (long-dominant >=65%, short-dominant <=35%, balanced). Useful for agents detecting forced deleveraging direction. Builder tier or above.",
+  {},
+  async () => {
+    const data = await acFetch("derivatives/liquidations");
+    return { content: [{ type: "text", text: truncate(data) }] };
+  }
+);
+
 // ─── Start ───────────────────────────────────────────────────────
 
 await detectTier();
