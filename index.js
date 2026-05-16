@@ -173,7 +173,7 @@ server.tool(
 // --- Tool: get_news (builder+) ---
 server.tool(
   "get_news",
-  "Get latest market news articles aggregated by AgentCanary. Filterable by ticker. Requires Builder tier or above.",
+  "Get aggregated market news from multiple feeds (crypto, equities, macro, geopolitics). Each article returns title, summary, source, publish timestamp, and sentiment tags (POSITIVE / NEGATIVE / NEUTRAL). Filterable by ticker for asset-specific news. Useful for agents tracking catalysts, doing event-driven analysis, or feeding LLM summarization pipelines. Builder tier or above.",
   {
     limit: z.number().min(1).max(30).default(10).describe("Number of articles"),
     ticker: z.string().optional().describe("Filter by ticker symbol (e.g. BTC, NVDA)"),
@@ -330,7 +330,7 @@ server.tool(
 // --- Tool: get_central_banks (signal+) ---
 server.tool(
   "get_central_banks",
-  "Get central bank data — balance sheets, gold reserves, BTC reserves, stablecoin exposure, TIC flows. Tracks institutional macro positioning.",
+  "Get central bank positioning data across Fed, ECB, BOJ, PBOC, and major sovereigns. Views: balance-sheets (total assets + YoY change), gold (reserves + accumulation rate), btc (sovereign BTC holdings, post-2024 trend), stablecoins (US dollar exposure via USDC/USDT reserves), reserves (composition shifts), tic (Treasury International Capital flows = who's buying/selling US debt). Useful for agents detecting de-dollarization signals, sovereign rotation, or institutional positioning shifts ahead of macro moves. Signal tier.",
   {
     view: z.string().optional().describe("View: balance-sheets, gold, btc, stablecoins, reserves, tic. Omit for overview."),
   },
@@ -344,7 +344,7 @@ server.tool(
 // --- Tool: get_expectations (signal+) ---
 server.tool(
   "get_expectations",
-  "Get market expectations — crowded trades, early-stage narratives, rotation signals. Identifies where consensus is building or breaking.",
+  "Get positioning-vs-consensus signals. Views: crowded (narratives scoring 4-5 in momentum + high positioning concentration = contrarian sell signals), early (narratives scoring 1-2 = under-the-radar opportunities before consensus forms), rotation (sector/narrative flows showing where capital is moving FROM and TO). Each view returns ranked lists with deltas + the underlying signals driving the score. Useful for agents running contrarian strategies, mean-reversion plays, or trying to front-run consensus shifts. Signal tier.",
   {
     view: z.string().optional().describe("View: crowded, early, rotation. Omit for overview."),
   },
@@ -358,7 +358,7 @@ server.tool(
 // --- Tool: get_macro (builder+) ---
 server.tool(
   "get_macro",
-  "Get macro data — snapshot (30+ FRED series), business cycle position, global liquidity, US M2, supply chain stress, calendar of high-impact events.",
+  "Get macro state across 30+ FRED series + derived composites. Views: snapshot (full macro dashboard with regime, gauges, key rates), business-cycle (LEI, claims, yield curve, recession probability), global-liquidity (CB balance sheets aggregated, M2 trend, credit spreads, Baltic Dry shipping), us-m2 (US money supply YoY), supply-chain (stress index), calendar-high-impact (next 72h of high-impact economic events with prev/forecast), risk-score (0-100 composite), signals (binary trigger states). Omit view for regime classification (expansion/stagflation/late-cycle/recession). Useful for agents conditioning on macro regime before tactical decisions. Builder tier or above.",
   {
     view: z.string().optional().describe("View: snapshot, business-cycle, global-liquidity, us-m2, supply-chain, calendar-high-impact, risk-score, signals. Omit for regime."),
   },
