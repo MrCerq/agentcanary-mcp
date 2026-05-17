@@ -38,7 +38,7 @@ Deposit USDC/USDT on any major EVM chain (Base, Ethereum, Arbitrum, Optimism, Po
 |------|---------|
 | `get_briefs` | Daily market intelligence briefs (4×/day: radar / signal / pulse / wrap) |
 | `get_regime` | Current macro regime, risk gauge (0-100), key drivers, transition probabilities |
-| `get_indicators` | Any of 50+ proprietary indicators (Pi Cycle, Wyckoff, CAPE, Hindenburg…) — pass `name=` |
+| `get_indicators` | Any of 36 proprietary indicators (Bull Market Support Band, Pi Cycle, Wyckoff, CAPE, Hindenburg…) — pass `name=` |
 | `get_narratives` | Top active narratives with momentum scores, stage, asset impact |
 | `get_predictions` | Prediction market data (Polymarket, Kalshi) |
 | `get_scores` | Prediction scoring results (hit / miss / partial after 72h) |
