@@ -1,8 +1,8 @@
 {
   "name": "agentcanary-mcp",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "mcpName": "io.github.MrCerq/agentcanary",
-  "description": "MCP server for AgentCanary market intelligence \u2014 briefs, indicators, regime, narratives, predictions, scoring, plus live derivatives (open interest, liquidations)",
+  "description": "MCP server for AgentCanary \u2014 decision-grade market intelligence for autonomous AI agents. Regime, risk, narrative momentum, scenarios, track-record-verified signals via API + MCP.",
   "main": "index.js",
   "type": "module",
   "bin": {
@@ -10,9 +10,10 @@
   },
   "keywords": [
     "mcp",
+    "ai-agents",
+    "autonomous-agents",
     "market-intelligence",
     "agentcanary",
-    "trading",
     "macro",
     "crypto"
   ],
