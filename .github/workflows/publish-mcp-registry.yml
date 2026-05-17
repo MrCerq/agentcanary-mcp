@@ -33,6 +33,21 @@ jobs:
       - name: Validate server.json against MCP Registry schema
         run: ./mcp-publisher validate
 
+      - name: Wait for npm version to propagate
+        run: |
+          NPM_VERSION=$(python3 -c "import json; print(json.load(open(\"server.json\"))[\"packages\"][0][\"version\"])")
+          echo "Waiting for npm to serve agentcanary-mcp@$NPM_VERSION..."
+          for i in $(seq 1 30); do
+            if curl -sf "https://registry.npmjs.org/agentcanary-mcp/$NPM_VERSION" > /dev/null 2>&1; then
+              echo "✓ npm has $NPM_VERSION (attempt $i)"
+              exit 0
+            fi
+            echo "  [$i/30] not yet — sleeping 10s..."
+            sleep 10
+          done
+          echo "✗ npm did not serve $NPM_VERSION after 5min — bailing"
+          exit 1
+
       - name: Publish server.json to MCP Registry
         run: ./mcp-publisher publish
 
