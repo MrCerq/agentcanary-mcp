@@ -34,25 +34,25 @@ Deposit USDC/USDT on any major EVM chain (Base, Ethereum, Arbitrum, Optimism, Po
 
 ## Tools (17)
 
-| Tool | Returns |
-|------|---------|
-| `get_briefs` | Daily market intelligence briefs (4×/day: radar / signal / pulse / wrap) |
-| `get_regime` | Current macro regime, risk gauge (0-100), key drivers, transition probabilities |
-| `get_indicators` | Any of 36 proprietary indicators (Bull Market Support Band, Pi Cycle, Wyckoff, CAPE, Hindenburg…) — pass `name=` |
-| `get_narratives` | Top active narratives with momentum scores, stage, asset impact |
-| `get_predictions` | Prediction market data (Polymarket, Kalshi) |
-| `get_scores` | Prediction scoring results (hit / miss / partial after 72h) |
-| `get_scenario_analysis` | Forward scenarios with price targets |
-| `get_signals` | 20 sub-types via `type=`: whale-alerts, fear-greed, funding-rates, btc-etf-flows, vix, credit-stress, sector-rotation, insider-activity, correlations, dxy, oil, yield-curve, market-structure, stablecoin-dominance, whale-positions, cftc-cot, bofa-fms, dispersion, geopolitical-risk, decision-engine |
-| `get_news` | Aggregated market news, filterable by ticker |
-| `get_market_structure` | Orderbook depth, liquidation heatmap, exchange volumes — pass `view=` |
-| `get_defi` | DeFi yields, stablecoins, chains, unlocks, perps — pass `category=` |
-| `get_btc_options` | BTC options max pain + volatility skew |
-| `get_central_banks` | Balance sheets, gold, reserves, TIC — pass `view=` |
-| `get_expectations` | Market expectations (crowded, early, rotation) |
-| `get_macro` | FRED, business cycle, global liquidity, M2, supply chain, high-impact calendar |
-| `get_open_interest` | Cross-exchange OI across 43 perps + top by USD + 4h Δ% shifters |
-| `get_liquidations` | 24h totals + 4h long/short split + per-side event counts + dominant-direction label |
+| Tool | Tier | Returns |
+|------|------|---------|
+| `get_briefs` | Explorer | Daily market intelligence briefs (4×/day: radar / signal / pulse / wrap) |
+| `get_regime` | Builder | Current macro regime, risk gauge (0-100), key drivers, transition probabilities |
+| `get_indicators` | Builder | Any of 36 proprietary indicators (Bull Market Support Band, Pi Cycle, Wyckoff, CAPE, Hindenburg…) — pass `name=` |
+| `get_narratives` | Builder | Top active narratives with momentum scores, stage, asset impact |
+| `get_predictions` | Builder | Prediction market data (Polymarket, Kalshi) |
+| `get_scores` | Explorer | Prediction scoring results (hit / partial / miss after 72h) |
+| `get_scenario_analysis` | Signal | Forward scenarios with price targets |
+| `get_signals` | Builder+ | 20 sub-types via `type=`: whale-alerts, fear-greed, funding-rates, btc-etf-flows, vix, credit-stress, sector-rotation, insider-activity, correlations, dxy, oil, yield-curve, market-structure, stablecoin-dominance, whale-positions, cftc-cot, bofa-fms, dispersion, geopolitical-risk, decision-engine |
+| `get_news` | Builder | Aggregated market news, filterable by ticker |
+| `get_market_structure` | Builder | Orderbook depth, liquidation heatmap, exchange volumes — pass `view=` |
+| `get_defi` | Builder | DeFi yields, stablecoins, chains, unlocks, perps — pass `category=` |
+| `get_btc_options` | Builder | BTC options max pain + volatility skew |
+| `get_central_banks` | Signal | Balance sheets, gold, reserves, TIC — pass `view=` |
+| `get_expectations` | Signal | Market expectations (crowded, early, rotation) |
+| `get_macro` | Builder | FRED, business cycle, global liquidity, M2, supply chain, high-impact calendar |
+| `get_open_interest` | Builder | Cross-exchange OI across 43 perps + top by USD + 4h Δ% shifters |
+| `get_liquidations` | Builder | 24h totals + 4h long/short split + per-side event counts + dominant-direction label |
 
 ## Pricing
 
