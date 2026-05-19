@@ -1,6 +1,6 @@
 # AgentCanary MCP Server
 
-MCP server for [AgentCanary](https://agentcanary.ai) — decision-grade market intelligence for autonomous AI agents. Regime classifications, risk scores, narrative momentum, scenario probabilities, and public track-record-verified signals via 17 MCP tools.
+MCP server for [AgentCanary](https://agentcanary.ai) — decision-grade market intelligence for autonomous AI agents. Regime classifications, risk scores, narrative momentum, scenario probabilities, and public track-record-verified signals via 18 MCP tools.
 
 ## Quick Start
 
@@ -32,7 +32,7 @@ curl -X POST https://api.agentcanary.ai/api/keys/create \
 
 Deposit USDC/USDT on any major EVM chain (Base, Ethereum, Arbitrum, Optimism, Polygon). $5 minimum. Credits never expire.
 
-## Tools (17)
+## Tools (18)
 
 | Tool | Tier | Returns |
 |------|------|---------|
