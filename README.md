@@ -75,3 +75,27 @@ Per-call cost: $0.01-0.02 from deposit. Credits never expire. No subscriptions.
 ## License
 
 MIT
+
+## Diagnose Tool
+
+If any other tool returns `tier_insufficient`, `scope_insufficient`, or `insufficient_credits`, call `diagnose` for the exact upgrade path:
+
+```
+{
+  "mcp_version": "1.4.0",
+  "tier": "explorer",
+  "scopes": ["all"],
+  "credits": 50,
+  "upgrade_path": "Deposit $50 USDC on Base to upgrade to Builder tier"
+}
+```
+
+## Tier-Aware Errors
+
+Errors are now structured. Examples:
+
+- `[tier_insufficient]` — endpoint requires a higher tier than your key carries
+- `[scope_insufficient]` — your key has restricted scopes (re-issue with broader)
+- `[insufficient_credits]` — top up via deposit on Base
+- `[rate_limited]` — includes `Retry after Ns`
+

@@ -22,6 +22,7 @@ import { z } from "zod";
 
 const API_BASE = process.env.AC_API_BASE || "https://api.agentcanary.ai/api";
 const API_KEY = process.env.AC_API_KEY;
+const MCP_VERSION = "1.4.0";
 
 if (!API_KEY) {
   console.error("Error: AC_API_KEY environment variable is required.");
@@ -37,14 +38,54 @@ async function acFetch(endpoint, params = {}) {
     if (v != null) url.searchParams.set(k, String(v));
   }
   const res = await fetch(url.toString(), {
-    headers: { "x-api-key": API_KEY, "User-Agent": "AgentCanary-MCP/1.0" },
+    headers: {
+      "x-api-key": API_KEY,
+      "User-Agent": `AgentCanary-MCP/${MCP_VERSION}`,
+    },
   });
-  if (res.status === 401) throw new Error("Invalid API key. Check your AC_API_KEY.");
-  if (res.status === 403) throw new Error("Endpoint not available on your tier. Upgrade at agentcanary.ai");
-  if (res.status === 429) throw new Error("Rate limit exceeded. Wait and try again.");
+
+  // Try to parse JSON error body for backend-structured errors. If response
+  // isn't JSON, fall back to raw text.
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`AC API ${res.status}: ${text.slice(0, 200)}`);
+    let body;
+    try { body = await res.json(); } catch { body = { raw: (await res.text()).slice(0, 300) }; }
+
+    // 401: auth
+    if (res.status === 401) {
+      const code = body.error || "auth_required";
+      throw new Error(`[${code}] ${body.message || "Invalid or missing API key. Check AC_API_KEY."}`);
+    }
+
+    // 403: tier OR scope
+    if (res.status === 403) {
+      if (body.error === "tier_insufficient") {
+        const curr = body.currentTier || "explorer";
+        const req = body.requiredTier || "unknown";
+        const dep = body.depositAddress ? ` Deposit to ${body.depositAddress} on Base.` : "";
+        throw new Error(`[tier_insufficient] Need ${req} tier (you're on ${curr}).${dep} Details: https://agentcanary.ai/#pricing`);
+      }
+      if (body.error === "scope_insufficient") {
+        const reqScope = body.requiredScope || "?";
+        const keyScopes = Array.isArray(body.keyScopes) ? body.keyScopes.join(",") : "?";
+        throw new Error(`[scope_insufficient] Key needs scope "${reqScope}" — currently has [${keyScopes}]. Re-issue key with broader scopes.`);
+      }
+      throw new Error(`[forbidden] ${body.message || "Access denied."}`);
+    }
+
+    // 429: rate limit
+    if (res.status === 429) {
+      const retry = body.retryAfterSeconds ? ` Retry after ${body.retryAfterSeconds}s.` : "";
+      throw new Error(`[rate_limited] ${body.message || "Rate limit exceeded."}${retry}`);
+    }
+
+    // 402: insufficient credits
+    if (res.status === 402) {
+      const credits = body.creditsRemaining ?? "?";
+      throw new Error(`[insufficient_credits] ${credits} credits left. Top up via deposit on Base.`);
+    }
+
+    // 5xx + everything else
+    throw new Error(`[ac_api_${res.status}] ${body.message || body.error || body.raw || JSON.stringify(body).slice(0, 200)}`);
   }
   return res.json();
 }
@@ -81,17 +122,17 @@ async function detectTier() {
 
 const server = new McpServer({
   name: "agentcanary",
-  version: "1.2.0",
+  version: MCP_VERSION,
 });
 
 // --- Tool: get_briefs (all tiers) ---
 server.tool(
   "get_briefs",
-  "Get AgentCanary market intelligence briefs (Morning Brief, Market Pulse, Signal Scan, Evening Wrap, Cycle Check). Returns headlines, tags, panels, and content.",
+  "Get AgentCanary market intelligence briefs (Macro Radar 03:15Z, Signal Scan 09:15Z, Market Pulse 15:15Z, Market Wrap 21:15Z). Returns headlines, tags, panels, and content. Examples: get_briefs({limit: 5}) — last 5 briefs · get_briefs({date: \"2026-05-19\"}) — all 4 slots for one day · get_briefs({session: \"radar\"}) — last 10 morning radar briefs. All tiers (Explorer gets headlines+desc, Builder+ get full content).",
   {
     limit: z.number().min(1).max(50).default(10).describe("Number of briefs to return"),
     date: z.string().optional().describe("Filter by date (YYYY-MM-DD)"),
-    session: z.string().optional().describe("Filter by session type: morning, midday, intelligence, evening, cycle"),
+    session: z.string().optional().describe("Filter by session: radar (03:15Z) | signal (09:15Z) | pulse (15:15Z) | wrap (21:15Z). Legacy names accepted: morning, intelligence, midday, evening."),
   },
   async ({ limit, date, session }) => {
     const data = await acFetch("briefs/archive", { limit });
@@ -116,7 +157,7 @@ server.tool(
 // --- Tool: get_indicators (builder+) ---
 server.tool(
   "get_indicators",
-  "Get market indicators. 36 proprietary indicators including Bull Market Support Band, Pi Cycle, Wyckoff Structure, Stablecoin Composite, Composite Risk Score, and more. Pass a name for a single indicator, or list all. Requires Builder tier or above.",
+  "Get market indicators (36 proprietary). Examples: get_indicators() — list all with category/score · get_indicators({name: \"bull-market-support-band\"}) — single indicator detail · get_indicators({category: \"sentiment\"}) — sentiment-only subset. Common names: bull-market-support-band, btc-pi-cycle, wyckoff-structure, stablecoin-composite, composite-risk-score. Builder tier or above.",
   {
     name: z.string().optional().describe("Specific indicator name, e.g. 'bull-market-support-band', 'btc-pi-cycle', 'wyckoff-structure'"),
     category: z.string().optional().describe("Filter by category: crypto, macro, sentiment, technical, liquidity"),
@@ -397,6 +438,50 @@ server.tool(
   async () => {
     const data = await acFetch("derivatives/liquidations");
     return { content: [{ type: "text", text: truncate(data) }] };
+  }
+);
+
+
+// --- Tool: diagnose (all tiers) ---
+// Returns current key state + tier + scopes + credits. Use this when a tool
+// errors out — gives the agent enough context to choose an alternative or
+// escalate to the operator.
+server.tool(
+  "diagnose",
+  "Diagnose the current API key: tier, scopes, credits remaining, rate limit, last-used timestamp, recent activity summary. Call this when a tool returns tier_insufficient, scope_insufficient, or insufficient_credits — the response includes the exact upgrade path. All tiers.",
+  {},
+  async () => {
+    // Pull key info via the /keys/info endpoint (already used by detectTier)
+    const res = await fetch(`${API_BASE}/keys/info`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "User-Agent": `AgentCanary-MCP/${MCP_VERSION}` },
+      body: JSON.stringify({ apiKey: API_KEY }),
+    });
+    if (!res.ok) {
+      const t = (await res.text()).slice(0, 200);
+      return { content: [{ type: "text", text: `Diagnose failed (${res.status}): ${t}` }] };
+    }
+    const data = await res.json();
+    const summary = {
+      mcp_version: MCP_VERSION,
+      api_base: API_BASE,
+      key_prefix: API_KEY.slice(0, 8) + "…",
+      tier: data.tier || "explorer",
+      status: data.status || "active",
+      scopes: data.scopes || ["all"],
+      credits: data.credits ?? null,
+      rate_limit: data.rateLimit || null,
+      last_used_at: data.lastUsedAt || null,
+      docs: "https://agentcanary.ai/sources/ + https://api.agentcanary.ai/api/docs",
+      upgrade_path: data.tier === "explorer"
+        ? "Deposit $50 USDC on Base to upgrade to Builder tier"
+        : data.tier === "builder"
+        ? "Deposit $150 cumulative to upgrade to Signal tier"
+        : data.tier === "signal"
+        ? "Deposit $500 cumulative to upgrade to Institutional"
+        : "You're at the top tier",
+    };
+    return { content: [{ type: "text", text: JSON.stringify(summary, null, 2) }] };
   }
 );
 
