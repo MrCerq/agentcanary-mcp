@@ -22,6 +22,62 @@ npx agentcanary-mcp
 }
 ```
 
+
+## Cursor Config
+
+`~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "agentcanary": {
+      "command": "npx",
+      "args": ["-y", "agentcanary-mcp"],
+      "env": { "AC_API_KEY": "ac_your_key_here" }
+    }
+  }
+}
+```
+
+Restart Cursor → all 18 tools available via Composer.
+
+## Windsurf Config
+
+`~/.codeium/windsurf/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "agentcanary": {
+      "command": "npx",
+      "args": ["-y", "agentcanary-mcp"],
+      "env": { "AC_API_KEY": "ac_your_key_here" }
+    }
+  }
+}
+```
+
+## Continue.dev Config
+
+`~/.continue/config.json` → `experimental.modelContextProtocolServers`:
+
+```json
+{
+  "experimental": {
+    "modelContextProtocolServers": [
+      {
+        "transport": {
+          "type": "stdio",
+          "command": "npx",
+          "args": ["-y", "agentcanary-mcp"],
+          "env": { "AC_API_KEY": "ac_your_key_here" }
+        }
+      }
+    ]
+  }
+}
+```
+
 ## Get an API Key
 
 ```bash
