@@ -22,7 +22,7 @@ import { z } from "zod";
 
 const API_BASE = process.env.AC_API_BASE || "https://api.agentcanary.ai/api";
 const API_KEY = process.env.AC_API_KEY;
-const MCP_VERSION = "1.4.0";
+const MCP_VERSION = "1.4.1";
 
 if (!API_KEY) {
   console.error("Error: AC_API_KEY environment variable is required.");
@@ -482,6 +482,32 @@ server.tool(
         : "You're at the top tier",
     };
     return { content: [{ type: "text", text: JSON.stringify(summary, null, 2) }] };
+  }
+);
+
+
+// --- Tool: get_track_record (public, no auth) ---
+// Exposes the public Brier + per-asset hit-rate data that powers /record/.
+// This is the differentiator — designed to be agent-discoverable without
+// requiring an API key. Calls /api/track-record (free, no auth).
+server.tool(
+  "get_track_record",
+  "Get AgentCanary's public hit/miss track record: mean Brier score, per-scenario calibration, reliability table (predicted vs observed probability buckets), per-asset hit rates. No API key required — this surface is public. Examples: get_track_record() returns full summary across all assets · get_track_record({ticker: 'SPY'}) returns just SPY's hit rate. Updated every 3h via the brief-grading pipeline.",
+  {
+    ticker: z.string().optional().describe("Optional ticker filter (e.g. 'SPY', 'BTC', 'GLD', 'OIL', 'VIX'). Omit for full summary across all tracked assets."),
+  },
+  async ({ ticker }) => {
+    const url = new URL(`${API_BASE}/track-record`);
+    if (ticker) url.searchParams.set("ticker", ticker);
+    const res = await fetch(url.toString(), {
+      headers: { "User-Agent": `AgentCanary-MCP/${MCP_VERSION}` },
+    });
+    if (!res.ok) {
+      const t = (await res.text()).slice(0, 200);
+      return { content: [{ type: "text", text: `[track_record_unavailable] ${res.status}: ${t}` }] };
+    }
+    const data = await res.json();
+    return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
   }
 );
 
