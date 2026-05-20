@@ -109,6 +109,8 @@ Deposit USDC/USDT on any major EVM chain (Base, Ethereum, Arbitrum, Optimism, Po
 | `get_macro` | Builder | FRED, business cycle, global liquidity, M2, supply chain, high-impact calendar |
 | `get_open_interest` | Builder | Cross-exchange OI across 43 perps + top by USD + 4h Δ% shifters |
 | `get_liquidations` | Builder | 24h totals + 4h long/short split + per-side event counts + dominant-direction label |
+| `diagnose` | Explorer | Current key state: tier, scopes, credits, rate limit, upgrade path. Call when any tool returns tier_insufficient / scope_insufficient / insufficient_credits. |
+| `get_track_record` | Public | Mean Brier + per-asset hit rates + reliability buckets. No API key needed — same data as agentcanary.ai/record/. Optional ticker filter. |
 
 ## Pricing
 
