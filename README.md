@@ -78,6 +78,14 @@ Restart Cursor → all 18 tools available via Composer.
 }
 ```
 
+## ChatGPT (Custom GPT)
+
+Don't want to install MCP? Use the AgentCanary Custom GPT directly in ChatGPT:
+
+**https://chatgpt.com/g/g-6a0f2b6ab07c819188983b3fb43ac62b-agentcanary**
+
+All major endpoints exposed as Actions. Free Explorer tier on the shared key.
+
 ## Get an API Key
 
 ```bash
