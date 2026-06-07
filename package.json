@@ -1,6 +1,6 @@
 {
   "name": "agentcanary-mcp",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "mcpName": "io.github.MrCerq/agentcanary",
   "description": "MCP server for AgentCanary \u2014 decision-grade market intelligence for autonomous AI agents. Regime, risk, narrative momentum, scenarios, track-record-verified signals via API + MCP.",
   "main": "index.js",
