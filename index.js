@@ -24,6 +24,41 @@ const API_BASE = process.env.AC_API_BASE || "https://api.agentcanary.ai/api";
 const API_KEY = process.env.AC_API_KEY;
 const MCP_VERSION = "1.4.1";
 
+const DATE_SCHEMA = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "date must be YYYY-MM-DD");
+const TICKER_SCHEMA = z.string().regex(/^[A-Za-z0-9._:-]{1,20}$/, "ticker must be 1-20 ticker-safe characters");
+const INDICATOR_NAME_SCHEMA = z.string().regex(/^[a-z0-9-]{1,64}$/, "indicator name must be lowercase letters, numbers, and hyphens");
+const BRIEF_SESSION_SCHEMA = z.enum(["radar", "signal", "pulse", "wrap", "morning", "intelligence", "midday", "evening"]);
+const INDICATOR_CATEGORY_SCHEMA = z.enum(["crypto", "macro", "sentiment", "technical", "liquidity"]);
+const SIGNAL_TYPE_SCHEMA = z.enum([
+  "whale-alerts",
+  "fear-greed",
+  "funding-rates",
+  "btc-etf-flows",
+  "vix",
+  "credit-stress",
+  "sector-rotation",
+  "insider-activity",
+  "correlations",
+  "dxy",
+  "oil",
+  "yield-curve",
+  "market-structure",
+  "stablecoin-dominance",
+  "whale-positions",
+  "cftc-cot",
+  "bofa-fms",
+  "dispersion",
+  "geopolitical-risk",
+  "decision-engine",
+]);
+const DEFI_CATEGORY_SCHEMA = z.enum(["yields", "pe-ratios", "stablecoins", "chains", "unlocks", "perps", "signals", "intelligence"]);
+const BTC_OPTIONS_VIEW_SCHEMA = z.enum(["maxpain", "skew"]);
+const MARKET_STRUCTURE_VIEW_SCHEMA = z.enum(["orderbook", "liquidation-heatmap", "liquidation-ranges", "exchange-assets", "exchange-volumes", "coinbase"]);
+const CENTRAL_BANKS_VIEW_SCHEMA = z.enum(["balance-sheets", "gold", "btc", "stablecoins", "reserves", "tic"]);
+const EXPECTATIONS_VIEW_SCHEMA = z.enum(["crowded", "early", "rotation"]);
+const MACRO_VIEW_SCHEMA = z.enum(["snapshot", "business-cycle", "global-liquidity", "us-m2", "supply-chain", "calendar-high-impact", "risk-score", "signals"]);
+const OPEN_INTEREST_VIEW_SCHEMA = z.enum(["top", "shifters"]);
+
 if (!API_KEY) {
   console.error("Error: AC_API_KEY environment variable is required.");
   console.error("Get your key at https://agentcanary.ai or POST https://api.agentcanary.ai/api/keys/create");
@@ -107,9 +142,10 @@ let detectedTier = "explorer";
 async function detectTier() {
   try {
     const res = await fetch(`${API_BASE}/keys/info`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ apiKey: API_KEY }),
+      headers: {
+        "x-api-key": API_KEY,
+        "User-Agent": `AgentCanary-MCP/${MCP_VERSION}`,
+      },
     });
     if (res.ok) {
       const data = await res.json();
@@ -131,8 +167,8 @@ server.tool(
   "Get AgentCanary market intelligence briefs (Macro Radar 03:15Z, Signal Scan 09:15Z, Market Pulse 15:15Z, Market Wrap 21:15Z). Returns headlines, tags, panels, and content. Examples: get_briefs({limit: 5}) — last 5 briefs · get_briefs({date: \"2026-05-19\"}) — all 4 slots for one day · get_briefs({session: \"radar\"}) — last 10 morning radar briefs. All tiers (Explorer gets headlines+desc, Builder+ get full content).",
   {
     limit: z.number().min(1).max(50).default(10).describe("Number of briefs to return"),
-    date: z.string().optional().describe("Filter by date (YYYY-MM-DD)"),
-    session: z.string().optional().describe("Filter by session: radar (03:15Z) | signal (09:15Z) | pulse (15:15Z) | wrap (21:15Z). Legacy names accepted: morning, intelligence, midday, evening."),
+    date: DATE_SCHEMA.optional().describe("Filter by date (YYYY-MM-DD)"),
+    session: BRIEF_SESSION_SCHEMA.optional().describe("Filter by session: radar (03:15Z) | signal (09:15Z) | pulse (15:15Z) | wrap (21:15Z). Legacy names accepted: morning, intelligence, midday, evening."),
   },
   async ({ limit, date, session }) => {
     const data = await acFetch("briefs/archive", { limit });
@@ -159,8 +195,8 @@ server.tool(
   "get_indicators",
   "Get market indicators (36 proprietary). Examples: get_indicators() — list all with category/score · get_indicators({name: \"bull-market-support-band\"}) — single indicator detail · get_indicators({category: \"sentiment\"}) — sentiment-only subset. Common names: bull-market-support-band, btc-pi-cycle, wyckoff-structure, stablecoin-composite, composite-risk-score. Builder tier or above.",
   {
-    name: z.string().optional().describe("Specific indicator name, e.g. 'bull-market-support-band', 'btc-pi-cycle', 'wyckoff-structure'"),
-    category: z.string().optional().describe("Filter by category: crypto, macro, sentiment, technical, liquidity"),
+    name: INDICATOR_NAME_SCHEMA.optional().describe("Specific indicator name, e.g. 'bull-market-support-band', 'btc-pi-cycle', 'wyckoff-structure'"),
+    category: INDICATOR_CATEGORY_SCHEMA.optional().describe("Filter by category: crypto, macro, sentiment, technical, liquidity"),
   },
   async ({ name, category }) => {
     if (name) {
@@ -217,7 +253,7 @@ server.tool(
   "Get aggregated market news from multiple feeds (crypto, equities, macro, geopolitics). Each article returns title, summary, source, publish timestamp, and sentiment tags (POSITIVE / NEGATIVE / NEUTRAL). Filterable by ticker for asset-specific news. Useful for agents tracking catalysts, doing event-driven analysis, or feeding LLM summarization pipelines. Builder tier or above.",
   {
     limit: z.number().min(1).max(30).default(10).describe("Number of articles"),
-    ticker: z.string().optional().describe("Filter by ticker symbol (e.g. BTC, NVDA)"),
+    ticker: TICKER_SCHEMA.optional().describe("Filter by ticker symbol (e.g. BTC, NVDA)"),
   },
   async ({ limit, ticker }) => {
     const params = { limit };
@@ -280,7 +316,7 @@ server.tool(
   "get_scenario_analysis",
   "Get forward scenario analysis from Signal Scan — price targets for different market scenarios (geopolitical, stagflation, risk-on, etc.) with implication. Requires Signal tier.",
   {
-    date: z.string().optional().describe("Specific date (YYYY-MM-DD). Defaults to latest."),
+    date: DATE_SCHEMA.optional().describe("Specific date (YYYY-MM-DD). Defaults to latest."),
   },
   async ({ date }) => {
     const data = await acFetch("briefs/archive", { limit: 50 });
@@ -309,7 +345,7 @@ server.tool(
   "get_signals",
   "Get trading signals — whale alerts, fear & greed, funding rates, BTC ETF flows, VIX, credit stress, sector rotation, insider activity, DXY, oil, yield curve, and more. Pass a type for specific signal.",
   {
-    type: z.string().optional().describe("Signal type: whale-alerts, fear-greed, funding-rates, btc-etf-flows, vix, credit-stress, sector-rotation, insider-activity, correlations, dxy, oil, yield-curve, market-structure, stablecoin-dominance, whale-positions, cftc-cot, bofa-fms, dispersion, geopolitical-risk, decision-engine"),
+    type: SIGNAL_TYPE_SCHEMA.optional().describe("Signal type: whale-alerts, fear-greed, funding-rates, btc-etf-flows, vix, credit-stress, sector-rotation, insider-activity, correlations, dxy, oil, yield-curve, market-structure, stablecoin-dominance, whale-positions, cftc-cot, bofa-fms, dispersion, geopolitical-risk, decision-engine"),
   },
   async ({ type }) => {
     const endpoint = type ? `signals/${type}` : "signals/decision-engine";
@@ -323,7 +359,7 @@ server.tool(
   "get_defi",
   "Get DeFi intelligence — yields, PE ratios, stablecoin flows, chain activity, token unlocks, perp funding. Pass a category for specific data.",
   {
-    category: z.string().optional().describe("Category: yields, pe-ratios, stablecoins, chains, unlocks, perps, signals, intelligence"),
+    category: DEFI_CATEGORY_SCHEMA.optional().describe("Category: yields, pe-ratios, stablecoins, chains, unlocks, perps, signals, intelligence"),
   },
   async ({ category }) => {
     const endpoint = category ? `defi/${category}` : "defi/intelligence";
@@ -337,7 +373,7 @@ server.tool(
   "get_btc_options",
   "Get BTC options data — pass view= for maxpain (max pain price) or skew (volatility skew). Omit for overview (includes max pain + skew + put/call ratios). Key for understanding institutional positioning.",
   {
-    view: z.string().optional().describe("View: maxpain, skew. Omit for overview."),
+    view: BTC_OPTIONS_VIEW_SCHEMA.optional().describe("View: maxpain, skew. Omit for overview."),
   },
   async ({ view }) => {
     const endpoint = view ? `btc-options/${view}` : "btc-options";
@@ -351,7 +387,7 @@ server.tool(
   "get_market_structure",
   "Get market structure & exchange data — pass view= for one of: orderbook (depth across exchanges), liquidation-heatmap (BTC leverage liquidation map), liquidation-ranges, exchange-assets (token listings by venue), exchange-volumes (trading volumes by exchange), coinbase (Coinbase-specific metrics). Omit for orderbook (default). Covers the leverage/depth/venue data that complements directional signals from get_signals.",
   {
-    view: z.string().optional().describe("View: orderbook, liquidation-heatmap, liquidation-ranges, exchange-assets, exchange-volumes, coinbase. Omit for orderbook."),
+    view: MARKET_STRUCTURE_VIEW_SCHEMA.optional().describe("View: orderbook, liquidation-heatmap, liquidation-ranges, exchange-assets, exchange-volumes, coinbase. Omit for orderbook."),
   },
   async ({ view }) => {
     const map = {
@@ -373,7 +409,7 @@ server.tool(
   "get_central_banks",
   "Get central bank positioning data across Fed, ECB, BOJ, PBOC, and major sovereigns. Views: balance-sheets (total assets + YoY change), gold (reserves + accumulation rate), btc (sovereign BTC holdings, post-2024 trend), stablecoins (US dollar exposure via USDC/USDT reserves), reserves (composition shifts), tic (Treasury International Capital flows = who's buying/selling US debt). Useful for agents detecting de-dollarization signals, sovereign rotation, or institutional positioning shifts ahead of macro moves. Signal tier.",
   {
-    view: z.string().optional().describe("View: balance-sheets, gold, btc, stablecoins, reserves, tic. Omit for overview."),
+    view: CENTRAL_BANKS_VIEW_SCHEMA.optional().describe("View: balance-sheets, gold, btc, stablecoins, reserves, tic. Omit for overview."),
   },
   async ({ view }) => {
     const endpoint = view ? `central-banks/${view}` : "central-banks";
@@ -387,7 +423,7 @@ server.tool(
   "get_expectations",
   "Get positioning-vs-consensus signals. Views: crowded (narratives scoring 4-5 in momentum + high positioning concentration = contrarian sell signals), early (narratives scoring 1-2 = under-the-radar opportunities before consensus forms), rotation (sector/narrative flows showing where capital is moving FROM and TO). Each view returns ranked lists with deltas + the underlying signals driving the score. Useful for agents running contrarian strategies, mean-reversion plays, or trying to front-run consensus shifts. Signal tier.",
   {
-    view: z.string().optional().describe("View: crowded, early, rotation. Omit for overview."),
+    view: EXPECTATIONS_VIEW_SCHEMA.optional().describe("View: crowded, early, rotation. Omit for overview."),
   },
   async ({ view }) => {
     const endpoint = view ? `expectations/${view}` : "expectations";
@@ -401,7 +437,7 @@ server.tool(
   "get_macro",
   "Get macro state across 30+ FRED series + derived composites. Views: snapshot (full macro dashboard with regime, gauges, key rates), business-cycle (LEI, claims, yield curve, recession probability), global-liquidity (CB balance sheets aggregated, M2 trend, credit spreads, Baltic Dry shipping), us-m2 (US money supply YoY), supply-chain (stress index), calendar-high-impact (next 72h of high-impact economic events with prev/forecast), risk-score (0-100 composite), signals (binary trigger states). Omit view for regime classification (expansion/stagflation/late-cycle/recession). Useful for agents conditioning on macro regime before tactical decisions. Builder tier or above.",
   {
-    view: z.string().optional().describe("View: snapshot, business-cycle, global-liquidity, us-m2, supply-chain, calendar-high-impact, risk-score, signals. Omit for regime."),
+    view: MACRO_VIEW_SCHEMA.optional().describe("View: snapshot, business-cycle, global-liquidity, us-m2, supply-chain, calendar-high-impact, risk-score, signals. Omit for regime."),
   },
   async ({ view }) => {
     const endpoint = view ? `macro/${view}` : "macro/regime";
@@ -418,7 +454,7 @@ server.tool(
   "get_open_interest",
   "Get cross-exchange open-interest snapshot for crypto perps. Aggregate OI across 43 symbols + top-N by USD size + top-N by absolute 4h Δ% (intraday OI shifters). Useful for agents detecting positioning unwinds, new builds, leveraged crowding. Builder tier or above.",
   {
-    view: z.string().optional().describe("View: 'top' (top symbols by OI USD), 'shifters' (top intraday OI movers by 4h Δ%). Omit for full snapshot (aggregate + top + shifters + envelope)."),
+    view: OPEN_INTEREST_VIEW_SCHEMA.optional().describe("View: 'top' (top symbols by OI USD), 'shifters' (top intraday OI movers by 4h Δ%). Omit for full snapshot (aggregate + top + shifters + envelope)."),
   },
   async ({ view }) => {
     const endpoint = view ? `derivatives/oi/${view}` : "derivatives/oi";
@@ -453,9 +489,10 @@ server.tool(
   async () => {
     // Pull key info via the /keys/info endpoint (already used by detectTier)
     const res = await fetch(`${API_BASE}/keys/info`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "User-Agent": `AgentCanary-MCP/${MCP_VERSION}` },
-      body: JSON.stringify({ apiKey: API_KEY }),
+      headers: {
+        "x-api-key": API_KEY,
+        "User-Agent": `AgentCanary-MCP/${MCP_VERSION}`,
+      },
     });
     if (!res.ok) {
       const t = (await res.text()).slice(0, 200);
@@ -494,7 +531,7 @@ server.tool(
   "get_track_record",
   "Get AgentCanary's public hit/miss track record: mean Brier score, per-scenario calibration, reliability table (predicted vs observed probability buckets), per-asset hit rates. No API key required — this surface is public. Examples: get_track_record() returns full summary across all assets · get_track_record({ticker: 'SPY'}) returns just SPY's hit rate. Updated every 3h via the brief-grading pipeline.",
   {
-    ticker: z.string().optional().describe("Optional ticker filter (e.g. 'SPY', 'BTC', 'GLD', 'OIL', 'VIX'). Omit for full summary across all tracked assets."),
+    ticker: TICKER_SCHEMA.optional().describe("Optional ticker filter (e.g. 'SPY', 'BTC', 'GLD', 'OIL', 'VIX'). Omit for full summary across all tracked assets."),
   },
   async ({ ticker }) => {
     const url = new URL(`${API_BASE}/track-record`);
