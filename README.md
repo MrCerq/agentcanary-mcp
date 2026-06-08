@@ -1,6 +1,6 @@
 # AgentCanary MCP Server
 
-MCP server for [AgentCanary](https://agentcanary.ai) — decision-grade market intelligence for autonomous AI agents. Regime classifications, risk scores, narrative momentum, scenario probabilities, and public track-record-verified signals via 18 MCP tools.
+MCP server for [AgentCanary](https://agentcanary.ai) — the market context layer for autonomous AI agents. Fresh regime classifications, risk scores, narrative momentum, and scenario state via 19 MCP tools, with transparent source trails.
 
 ## Quick Start
 
@@ -164,4 +164,3 @@ Errors are now structured. Examples:
 - `[scope_insufficient]` — your key has restricted scopes (re-issue with broader)
 - `[insufficient_credits]` — top up via deposit on Base
 - `[rate_limited]` — includes `Retry after Ns`
-
