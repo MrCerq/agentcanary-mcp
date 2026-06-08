@@ -2,19 +2,19 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.MrCerq/agentcanary",
   "title": "AgentCanary",
-  "description": "Market context layer for autonomous AI agents. Fresh regime, risk, narrative & scenario state via REST + MCP.",
+  "description": "Market context for AI agents: fresh regime, risk, narrative and scenario state via REST + MCP.",
   "websiteUrl": "https://agentcanary.ai",
   "repository": {
     "url": "https://github.com/MrCerq/agentcanary-mcp",
     "source": "github"
   },
-  "version": "1.4.3",
+  "version": "1.4.4",
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "agentcanary-mcp",
-      "version": "1.4.3",
+      "version": "1.4.4",
       "transport": {
         "type": "stdio"
       },

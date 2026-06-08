@@ -22,7 +22,7 @@ import { z } from "zod";
 
 const API_BASE = process.env.AC_API_BASE || "https://api.agentcanary.ai/api";
 const API_KEY = process.env.AC_API_KEY;
-const MCP_VERSION = "1.4.3";
+const MCP_VERSION = "1.4.4";
 
 const DATE_SCHEMA = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "date must be YYYY-MM-DD");
 const TICKER_SCHEMA = z.string().regex(/^[A-Za-z0-9._:-]{1,20}$/, "ticker must be 1-20 ticker-safe characters");

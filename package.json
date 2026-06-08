@@ -1,8 +1,8 @@
 {
   "name": "agentcanary-mcp",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "mcpName": "io.github.MrCerq/agentcanary",
-  "description": "MCP server for AgentCanary \u2014 market context layer for autonomous AI agents. Fresh regime, risk, narrative and scenario state via REST + MCP.",
+  "description": "MCP server for AgentCanary \u2014 market context for AI agents: fresh regime, risk, narrative and scenario state via REST + MCP.",
   "main": "index.js",
   "type": "module",
   "bin": {
