@@ -39,7 +39,7 @@ npx agentcanary-mcp
 }
 ```
 
-Restart Cursor → all 18 tools available via Composer.
+Restart Cursor → all 19 tools available via Composer.
 
 ## Windsurf Config
 
@@ -96,7 +96,7 @@ curl -X POST https://api.agentcanary.ai/api/keys/create \
 
 Deposit USDC/USDT on any major EVM chain (Base, Ethereum, Arbitrum, Optimism, Polygon). $5 minimum. Credits never expire.
 
-## Tools (18)
+## Tools (19)
 
 | Tool | Tier | Returns |
 |------|------|---------|
