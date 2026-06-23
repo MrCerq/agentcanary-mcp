@@ -486,7 +486,7 @@ server.tool(
 );
 
 
-// --- Tool: diagnose (all tiers) ---
+// --- Tool: diagnose (public/key-aware) ---
 // Returns current key state + tier + scopes + credits. Use this when a tool
 // errors out — gives the agent enough context to choose an alternative or
 // escalate to the operator.
