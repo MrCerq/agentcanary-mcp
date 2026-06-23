@@ -492,7 +492,7 @@ server.tool(
 // escalate to the operator.
 server.tool(
   "diagnose",
-  "Diagnose the current API key: tier, scopes, credits remaining, rate limit, last-used timestamp, recent activity summary. Call this when a tool returns tier_insufficient, scope_insufficient, or insufficient_credits — the response includes the exact upgrade path. All tiers.",
+  "Diagnose the current API key state. Without AC_API_KEY, reports that only public tools are available. With AC_API_KEY, returns tier, scopes, credits remaining, rate limit, last-used timestamp, recent activity summary, and upgrade path.",
   {},
   async () => {
     if (!hasApiKey()) {
