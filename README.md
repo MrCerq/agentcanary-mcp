@@ -8,6 +8,10 @@ MCP server for [AgentCanary](https://agentcanary.ai) — the market context laye
 npx agentcanary-mcp
 ```
 
+`get_track_record` is public and works without an API key. Set `AC_API_KEY`
+for tiered AgentCanary API tools such as briefs, indicators, regime, signals,
+and diagnostics.
+
 ## Claude Desktop Config
 
 ```json

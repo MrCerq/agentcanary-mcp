@@ -5,7 +5,8 @@
  * Connect any MCP-compatible AI client to AgentCanary market intelligence.
  * 
  * Setup:
- *   AC_API_KEY=ac_your_key_here node index.js
+ *   node index.js
+ *   AC_API_KEY=ac_your_key_here node index.js   # required for tiered tools
  * 
  * Or in Claude Desktop config:
  *   { "command": "npx", "args": ["agentcanary-mcp"], "env": { "AC_API_KEY": "ac_..." } }
@@ -59,22 +60,28 @@ const EXPECTATIONS_VIEW_SCHEMA = z.enum(["crowded", "early", "rotation"]);
 const MACRO_VIEW_SCHEMA = z.enum(["snapshot", "business-cycle", "global-liquidity", "us-m2", "supply-chain", "calendar-high-impact", "risk-score", "signals"]);
 const OPEN_INTEREST_VIEW_SCHEMA = z.enum(["top", "shifters"]);
 
-if (!API_KEY) {
-  console.error("Error: AC_API_KEY environment variable is required.");
-  console.error("Get your key at https://agentcanary.ai or POST https://api.agentcanary.ai/api/keys/create");
-  process.exit(1);
-}
-
 // ─── Helpers ─────────────────────────────────────────────────────
 
+function hasApiKey() {
+  return typeof API_KEY === "string" && API_KEY.trim().length > 0;
+}
+
+function requireApiKey() {
+  if (!hasApiKey()) {
+    throw new Error("[auth_required] AC_API_KEY is required for this tiered tool. Public tool available without a key: get_track_record. Get a key at https://agentcanary.ai or POST https://api.agentcanary.ai/api/keys/create");
+  }
+  return API_KEY;
+}
+
 async function acFetch(endpoint, params = {}) {
+  const apiKey = requireApiKey();
   const url = new URL(`${API_BASE}/${endpoint}`);
   for (const [k, v] of Object.entries(params)) {
     if (v != null) url.searchParams.set(k, String(v));
   }
   const res = await fetch(url.toString(), {
     headers: {
-      "x-api-key": API_KEY,
+      "x-api-key": apiKey,
       "User-Agent": `AgentCanary-MCP/${MCP_VERSION}`,
     },
   });
@@ -140,6 +147,7 @@ function stripHtml(s) {
 let detectedTier = "explorer";
 
 async function detectTier() {
+  if (!hasApiKey()) return;
   try {
     const res = await fetch(`${API_BASE}/keys/info`, {
       headers: {
@@ -487,10 +495,22 @@ server.tool(
   "Diagnose the current API key: tier, scopes, credits remaining, rate limit, last-used timestamp, recent activity summary. Call this when a tool returns tier_insufficient, scope_insufficient, or insufficient_credits — the response includes the exact upgrade path. All tiers.",
   {},
   async () => {
+    if (!hasApiKey()) {
+      const summary = {
+        mcp_version: MCP_VERSION,
+        api_base: API_BASE,
+        key_present: false,
+        public_tools_available: ["get_track_record"],
+        auth_required_for: "all tiered AgentCanary API tools",
+        get_key: "https://agentcanary.ai or POST https://api.agentcanary.ai/api/keys/create",
+      };
+      return { content: [{ type: "text", text: JSON.stringify(summary, null, 2) }] };
+    }
+    const apiKey = requireApiKey();
     // Pull key info via the /keys/info endpoint (already used by detectTier)
     const res = await fetch(`${API_BASE}/keys/info`, {
       headers: {
-        "x-api-key": API_KEY,
+        "x-api-key": apiKey,
         "User-Agent": `AgentCanary-MCP/${MCP_VERSION}`,
       },
     });
@@ -502,7 +522,7 @@ server.tool(
     const summary = {
       mcp_version: MCP_VERSION,
       api_base: API_BASE,
-      key_prefix: API_KEY.slice(0, 8) + "…",
+      key_prefix: apiKey.slice(0, 8) + "…",
       tier: data.tier || "explorer",
       status: data.status || "active",
       scopes: data.scopes || ["all"],

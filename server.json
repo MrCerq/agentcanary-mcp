@@ -21,8 +21,8 @@
       "environmentVariables": [
         {
           "name": "AC_API_KEY",
-          "description": "AgentCanary API key. Get one at https://app.agentcanary.ai or POST https://api.agentcanary.ai/api/keys/create with a wallet address.",
-          "isRequired": true,
+          "description": "Optional for public get_track_record. Required for tiered AgentCanary API tools. Get one at https://app.agentcanary.ai or POST https://api.agentcanary.ai/api/keys/create with a wallet address.",
+          "isRequired": false,
           "isSecret": true
         }
       ]
