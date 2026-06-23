@@ -152,7 +152,7 @@ If any tiered tool returns `tier_insufficient`, `scope_insufficient`, or `insuff
 
 ```
 {
-  "mcp_version": "1.4.4",
+  "mcp_version": "1.4.5",
   "tier": "explorer",
   "scopes": ["all"],
   "credits": 50,
