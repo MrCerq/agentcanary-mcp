@@ -17,6 +17,7 @@ jobs:
       # Trusted Publishing (OIDC) requires npm 11.5.1+. Node 20 ships npm 10.x.
       - run: npm install -g npm@latest
       - run: npm install
+      - run: npm test
       # No NODE_AUTH_TOKEN — auth handled via OIDC trusted publisher
       # (configured on npmjs.com → agentcanary-mcp → Trusted publishers).
       - run: npm publish --provenance --access public
