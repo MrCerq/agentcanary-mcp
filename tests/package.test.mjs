@@ -51,9 +51,9 @@ test('package metadata declares retired compatibility stub', async () => {
   const pkg = await readJson('package.json');
   const server = await readJson('server.json');
 
-  assert.equal(pkg.version, '1.4.6');
+  assert.equal(pkg.version, '1.4.7');
   assert.match(pkg.description, /Retired compatibility stub/);
-  assert.equal(server.version, '1.4.6');
+  assert.equal(server.version, '1.4.7');
   assert.match(server.description, /Retired compatibility stub/);
 });
 
@@ -63,4 +63,14 @@ test('runtime no longer calls the retired AgentCanary API host', async () => {
   assert.doesNotMatch(source, /api\.agentcanary\.ai\/api/);
   assert.doesNotMatch(source, /AC_API_KEY/);
   assert.match(source, /AgentCanary's public API and MCP product are offline/);
+});
+
+test('Smithery config is no-config retired stub', async () => {
+  const source = await readFile(path.join(repoRoot, 'smithery.yaml'), 'utf8');
+
+  assert.doesNotMatch(source, /AC_API_KEY/);
+  assert.doesNotMatch(source, /api\.agentcanary\.ai/);
+  assert.doesNotMatch(source, /app\.agentcanary\.ai/);
+  assert.doesNotMatch(source, /keys\/create/);
+  assert.match(source, /no-config compatibility stub/);
 });

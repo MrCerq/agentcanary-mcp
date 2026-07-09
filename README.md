@@ -16,7 +16,7 @@ Daily AgentCanary briefs continue here:
 npx agentcanary-mcp
 ```
 
-No `AC_API_KEY` is required. All legacy tools return the same retired-status payload with the current X and Telegram locations.
+No configuration is required. All legacy tools return the same retired-status payload with the current X and Telegram locations.
 
 ## Tools
 
@@ -42,4 +42,4 @@ The server keeps the legacy tool names registered for compatibility:
 - `diagnose`
 - `get_track_record`
 
-These tools no longer call `api.agentcanary.ai`.
+These tools do not contact retired AgentCanary product endpoints.

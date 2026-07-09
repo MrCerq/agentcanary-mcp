@@ -1,21 +1,15 @@
 # Smithery configuration — https://smithery.ai/docs/config
-# Tells Smithery how to launch agentcanary-mcp via stdio.
-# AC_API_KEY is optional for public get_track_record and required for tiered tools.
+# AgentCanary MCP is retired and runs as a no-config compatibility stub.
 
 startCommand:
   type: stdio
   configSchema:
-    # JSON Schema for the config that Smithery passes to the server at launch.
     type: object
-    properties:
-      acApiKey:
-        type: string
-        description: Optional for public get_track_record. Required for tiered AgentCanary API tools. Get one at https://app.agentcanary.ai or POST https://api.agentcanary.ai/api/keys/create with a wallet address.
+    properties: {}
+    additionalProperties: false
   commandFunction:
-    # Returns the CLI command Smithery uses to spawn the MCP server.
     |-
-    (config) => ({
+    () => ({
       command: 'npx',
-      args: ['-y', 'agentcanary-mcp'],
-      env: config.acApiKey ? { AC_API_KEY: config.acApiKey } : {}
+      args: ['-y', 'agentcanary-mcp']
     })

@@ -8,24 +8,17 @@
     "url": "https://github.com/MrCerq/agentcanary-mcp",
     "source": "github"
   },
-  "version": "1.4.6",
+  "version": "1.4.7",
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "agentcanary-mcp",
-      "version": "1.4.6",
+      "version": "1.4.7",
       "transport": {
         "type": "stdio"
       },
-      "environmentVariables": [
-        {
-          "name": "AC_API_KEY",
-          "description": "Retired. No API key is required; all tools return the AgentCanary retirement notice.",
-          "isRequired": false,
-          "isSecret": true
-        }
-      ]
+      "environmentVariables": []
     }
   ]
 }
