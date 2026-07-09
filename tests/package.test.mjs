@@ -46,3 +46,21 @@ test('server starts without AC_API_KEY so public tools can register', async () =
   child.kill('SIGTERM');
   await new Promise(resolve => child.once('close', resolve));
 });
+
+test('package metadata declares retired compatibility stub', async () => {
+  const pkg = await readJson('package.json');
+  const server = await readJson('server.json');
+
+  assert.equal(pkg.version, '1.4.6');
+  assert.match(pkg.description, /Retired compatibility stub/);
+  assert.equal(server.version, '1.4.6');
+  assert.match(server.description, /Retired compatibility stub/);
+});
+
+test('runtime no longer calls the retired AgentCanary API host', async () => {
+  const source = await readFile(path.join(repoRoot, 'index.js'), 'utf8');
+
+  assert.doesNotMatch(source, /api\.agentcanary\.ai\/api/);
+  assert.doesNotMatch(source, /AC_API_KEY/);
+  assert.match(source, /AgentCanary's public API and MCP product are offline/);
+});

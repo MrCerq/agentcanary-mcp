@@ -1,170 +1,45 @@
 # AgentCanary MCP Server
 
-MCP server for [AgentCanary](https://agentcanary.ai) — the market context layer for autonomous AI agents. Fresh regime classifications, risk scores, narrative momentum, and scenario state via 19 MCP tools, with transparent source trails.
+AgentCanary's public API and MCP product were retired on 2026-07-09.
 
-## Quick Start
+The npm package remains as a compatibility stub so existing MCP clients start cleanly and receive a clear retirement notice instead of failing on API keys or retired endpoints.
+
+Daily AgentCanary briefs continue here:
+
+- X: https://x.com/agentcanaryHQ
+- Telegram: https://t.me/agentcanary
+- Site: https://agentcanary.ai
+
+## Usage
 
 ```bash
 npx agentcanary-mcp
 ```
 
-`get_track_record` is public and works without an API key. Set `AC_API_KEY`
-for tiered AgentCanary API tools such as briefs, indicators, regime, signals,
-and diagnostics.
+No `AC_API_KEY` is required. All legacy tools return the same retired-status payload with the current X and Telegram locations.
 
-## Claude Desktop Config
+## Tools
 
-```json
-{
-  "mcpServers": {
-    "agentcanary": {
-      "command": "npx",
-      "args": ["agentcanary-mcp"],
-      "env": { "AC_API_KEY": "ac_your_key_here" }
-    }
-  }
-}
-```
+The server keeps the legacy tool names registered for compatibility:
 
+- `get_briefs`
+- `get_indicators`
+- `get_regime`
+- `get_predictions`
+- `get_narratives`
+- `get_news`
+- `get_scores`
+- `get_scenario_analysis`
+- `get_signals`
+- `get_defi`
+- `get_btc_options`
+- `get_market_structure`
+- `get_central_banks`
+- `get_expectations`
+- `get_macro`
+- `get_open_interest`
+- `get_liquidations`
+- `diagnose`
+- `get_track_record`
 
-## Cursor Config
-
-`~/.cursor/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "agentcanary": {
-      "command": "npx",
-      "args": ["-y", "agentcanary-mcp"],
-      "env": { "AC_API_KEY": "ac_your_key_here" }
-    }
-  }
-}
-```
-
-Restart Cursor → all 19 tools available via Composer.
-
-## Windsurf Config
-
-`~/.codeium/windsurf/mcp_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "agentcanary": {
-      "command": "npx",
-      "args": ["-y", "agentcanary-mcp"],
-      "env": { "AC_API_KEY": "ac_your_key_here" }
-    }
-  }
-}
-```
-
-## Continue.dev Config
-
-`~/.continue/config.json` → `experimental.modelContextProtocolServers`:
-
-```json
-{
-  "experimental": {
-    "modelContextProtocolServers": [
-      {
-        "transport": {
-          "type": "stdio",
-          "command": "npx",
-          "args": ["-y", "agentcanary-mcp"],
-          "env": { "AC_API_KEY": "ac_your_key_here" }
-        }
-      }
-    ]
-  }
-}
-```
-
-## ChatGPT (Custom GPT)
-
-Don't want to install MCP? Use the AgentCanary Custom GPT directly in ChatGPT:
-
-**https://chatgpt.com/g/g-6a0f2b6ab07c819188983b3fb43ac62b-agentcanary**
-
-All major endpoints exposed as Actions. Free Explorer tier on the shared key.
-
-## Get an API Key
-
-```bash
-curl -X POST https://api.agentcanary.ai/api/keys/create \
-  -H "Content-Type: application/json" \
-  -d '{"walletAddress": "0xYourWallet"}'
-```
-
-Deposit USDC/USDT on any major EVM chain (Base, Ethereum, Arbitrum, Optimism, Polygon). $5 minimum. Credits never expire.
-
-## Tools (19)
-
-| Tool | Tier | Returns |
-|------|------|---------|
-| `get_briefs` | Explorer | Daily market intelligence briefs (4×/day: radar / signal / pulse / wrap) |
-| `get_regime` | Builder | Current macro regime, risk gauge (0-100), key drivers, transition probabilities |
-| `get_indicators` | Builder | Any of 36 proprietary indicators (Bull Market Support Band, Pi Cycle, Wyckoff, CAPE, Hindenburg…) — pass `name=` |
-| `get_narratives` | Builder | Top active narratives with momentum scores, stage, asset impact |
-| `get_predictions` | Builder | Prediction market data (Polymarket, Kalshi) |
-| `get_scores` | Explorer | Prediction scoring results (hit / partial / miss after 72h) |
-| `get_scenario_analysis` | Signal | Forward scenarios with price targets |
-| `get_signals` | Builder+ | 20 sub-types via `type=`: whale-alerts, fear-greed, funding-rates, btc-etf-flows, vix, credit-stress, sector-rotation, insider-activity, correlations, dxy, oil, yield-curve, market-structure, stablecoin-dominance, whale-positions, cftc-cot, bofa-fms, dispersion, geopolitical-risk, decision-engine |
-| `get_news` | Builder | Aggregated market news, filterable by ticker |
-| `get_market_structure` | Builder | Orderbook depth, liquidation heatmap, exchange volumes — pass `view=` |
-| `get_defi` | Builder | DeFi yields, stablecoins, chains, unlocks, perps — pass `category=` |
-| `get_btc_options` | Builder | BTC options max pain + volatility skew |
-| `get_central_banks` | Signal | Balance sheets, gold, reserves, TIC — pass `view=` |
-| `get_expectations` | Signal | Market expectations (crowded, early, rotation) |
-| `get_macro` | Builder | FRED, business cycle, global liquidity, M2, supply chain, high-impact calendar |
-| `get_open_interest` | Builder | Cross-exchange OI across 43 perps + top by USD + 4h Δ% shifters |
-| `get_liquidations` | Builder | 24h totals + 4h long/short split + per-side event counts + dominant-direction label |
-| `diagnose` | Public | Reports whether a key is present; with `AC_API_KEY`, returns tier, scopes, credits, rate limit, and upgrade path. |
-| `get_track_record` | Public | Mean Brier + per-asset hit rates + reliability buckets. No API key needed — same data as agentcanary.ai/record/. Optional ticker filter. |
-
-## Pricing
-
-| Tier | Deposit | Calls/day | Adds |
-|------|---------|-----------|------|
-| Explorer | free | 50 | briefs + scores |
-| Builder | $50 USDC | 500 | + indicators / regime / narratives / news / predictions |
-| Signal | $150 USDC | 2000 | + scenarios / positioning / full content |
-| Institutional | $500 USDC | unlimited | white-label, SLA |
-
-Per-call cost: $0.01-0.02 from deposit. Credits never expire. No subscriptions.
-
-## Links
-
-- [API Docs (OpenAPI)](https://api.agentcanary.ai/api/docs)
-- [Website](https://agentcanary.ai)
-- [The Record (public brief archive)](https://agentcanary.ai/record/)
-- [Telegram](https://t.me/AgentCanary)
-
-## License
-
-MIT
-
-## Diagnose Tool
-
-If any tiered tool returns `tier_insufficient`, `scope_insufficient`, or `insufficient_credits`, call `diagnose` for the exact upgrade path. Without `AC_API_KEY`, `diagnose` reports that only `get_track_record` is available publicly:
-
-```
-{
-  "mcp_version": "1.4.5",
-  "tier": "explorer",
-  "scopes": ["all"],
-  "credits": 50,
-  "upgrade_path": "Deposit $50 USDC on Base to upgrade to Builder tier"
-}
-```
-
-## Tier-Aware Errors
-
-Errors are now structured. Examples:
-
-- `[tier_insufficient]` — endpoint requires a higher tier than your key carries
-- `[scope_insufficient]` — your key has restricted scopes (re-issue with broader)
-- `[insufficient_credits]` — top up via deposit on Base
-- `[rate_limited]` — includes `Retry after Ns`
+These tools no longer call `api.agentcanary.ai`.

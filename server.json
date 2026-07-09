@@ -2,26 +2,26 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.MrCerq/agentcanary",
   "title": "AgentCanary",
-  "description": "Market context for AI agents: fresh regime, risk, narrative and scenario state via REST + MCP.",
+  "description": "Retired compatibility stub for AgentCanary MCP. Daily briefs continue on X and Telegram.",
   "websiteUrl": "https://agentcanary.ai",
   "repository": {
     "url": "https://github.com/MrCerq/agentcanary-mcp",
     "source": "github"
   },
-  "version": "1.4.5",
+  "version": "1.4.6",
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "agentcanary-mcp",
-      "version": "1.4.5",
+      "version": "1.4.6",
       "transport": {
         "type": "stdio"
       },
       "environmentVariables": [
         {
           "name": "AC_API_KEY",
-          "description": "Optional for public get_track_record. Required for tiered AgentCanary API tools. Get one at https://app.agentcanary.ai or POST https://api.agentcanary.ai/api/keys/create with a wallet address.",
+          "description": "Retired. No API key is required; all tools return the AgentCanary retirement notice.",
           "isRequired": false,
           "isSecret": true
         }
