@@ -1,6 +1,6 @@
 {
   "name": "agentcanary-mcp",
-  "version": "1.4.7",
+  "version": "1.4.8",
   "mcpName": "io.github.MrCerq/agentcanary",
   "description": "Retired compatibility stub for the AgentCanary MCP server. Daily briefs continue on X and Telegram.",
   "main": "index.js",

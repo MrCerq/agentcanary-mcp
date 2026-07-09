@@ -24,14 +24,10 @@ test('package declares direct runtime deps and a tight npm file allowlist', asyn
   assert.equal(pkg.scripts?.test, 'node --test tests/*.test.mjs');
 });
 
-test('server starts without AC_API_KEY so public tools can register', async () => {
+test('server starts without configuration so public tools can register', async () => {
   const child = spawn(process.execPath, ['index.js'], {
     cwd: repoRoot,
-    env: {
-      ...process.env,
-      AC_API_KEY: '',
-      AC_API_BASE: 'https://api.agentcanary.ai/api',
-    },
+    env: { ...process.env },
     stdio: ['pipe', 'pipe', 'pipe'],
   });
 
@@ -51,25 +47,25 @@ test('package metadata declares retired compatibility stub', async () => {
   const pkg = await readJson('package.json');
   const server = await readJson('server.json');
 
-  assert.equal(pkg.version, '1.4.7');
+  assert.equal(pkg.version, '1.4.8');
   assert.match(pkg.description, /Retired compatibility stub/);
-  assert.equal(server.version, '1.4.7');
+  assert.equal(server.version, '1.4.8');
   assert.match(server.description, /Retired compatibility stub/);
 });
 
 test('runtime no longer calls the retired AgentCanary API host', async () => {
   const source = await readFile(path.join(repoRoot, 'index.js'), 'utf8');
 
-  assert.doesNotMatch(source, /api\.agentcanary\.ai\/api/);
-  assert.doesNotMatch(source, /AC_API_KEY/);
+  assert.doesNotMatch(source, /agentcanary\.ai\/api/);
+  assert.doesNotMatch(source, /API_KEY/);
   assert.match(source, /AgentCanary's public API and MCP product are offline/);
 });
 
 test('Smithery config is no-config retired stub', async () => {
   const source = await readFile(path.join(repoRoot, 'smithery.yaml'), 'utf8');
 
-  assert.doesNotMatch(source, /AC_API_KEY/);
-  assert.doesNotMatch(source, /api\.agentcanary\.ai/);
+  assert.doesNotMatch(source, /API_KEY/);
+  assert.doesNotMatch(source, /agentcanary\.ai/);
   assert.doesNotMatch(source, /app\.agentcanary\.ai/);
   assert.doesNotMatch(source, /keys\/create/);
   assert.match(source, /no-config compatibility stub/);

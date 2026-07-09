@@ -11,7 +11,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 
-const MCP_VERSION = "1.4.6";
+const MCP_VERSION = "1.4.8";
 const RETIRED_AT = "2026-07-09";
 const X_URL = "https://x.com/agentcanaryHQ";
 const TELEGRAM_URL = "https://t.me/agentcanary";
